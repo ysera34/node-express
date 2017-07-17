@@ -21,7 +21,8 @@ app.get('/', function(req, res){
 app.get('/about', function(req, res){
   // res.type('text/plain');
   // res.send('about');
-  res.render('about');
+  var randomFortune = fortunes[Math.floor(Math.random() * fortunes.length)];
+  res.render('about', {fortune : randomFortune});
 });
 
 app.use(function(req, res){
@@ -43,3 +44,11 @@ app.listen(app.get('port'), function(){
   console.log('Express started on http://localhost:' + app.get('port') +
    '; press Ctrl + C to terminate.');
 });
+
+var fortunes = [
+  "Conquer your fears or they wills conquer you.",
+  "Rivers need springs.",
+  "Do not fear what you don't know.",
+  "You will have a pleasant surprise.",
+  "Whenever possible, keep it simple.",
+];
