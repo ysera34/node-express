@@ -6,8 +6,10 @@
   Email: <input type="email" name="email" /><br />
   <input type="submit" value="Submit" />
 </form>
+{{#section 'jquery'}}
 <script>
   $(document).ready(function(){
     $('input[name="erferrer"]').val(document.referrer);
   });
 </script>
+{{/section}}
