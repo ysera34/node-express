@@ -1,5 +1,6 @@
 var express = require('express');
 var fortune = require('./lib/fortune.js');
+var formidable = require('formidable');
 
 var app = express();
 
@@ -102,6 +103,22 @@ app.post('/process-ajax', function(req, res){
   } else {
     res.redirect(303, '/thank-you');
   }
+});
+
+app.get('/contest/vacation-photo', function(req, res){
+  var now = new Date();
+  res.render('contest/vacation-photo', { year: now.getFullYear(), month: now.getMonth()});
+});
+app.post('/contest/vacation-photo/:year/:month', function(req, res){
+  var form = new formidable.IncomingForm();
+  form.parse(req, function(err, fields, files){
+    if (err) return res.redirect(303, '/error');
+    console.log('received field: ' + fields);
+    console.log(fields);
+    console.log('received files: ' + files);
+    console.log(files);
+    res.redirect(303, '/thank-you');
+  });
 });
 
 // 404 catch-all handler (middleware)
