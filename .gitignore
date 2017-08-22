@@ -63,3 +63,5 @@ node_modules
 .DS_Store
 
 Reference
+# we don't want to accidentally check our secret credentials into the repo
+credentials.js

@@ -1,6 +1,7 @@
 var express = require('express');
 var fortune = require('./lib/fortune.js');
 var formidable = require('formidable');
+var credentials = require('./credentials.js');
 
 var app = express();
 
@@ -24,6 +25,9 @@ app.use(express.static(__dirname + '/public'));
 
 // body parser
 app.use(require('body-parser').urlencoded({extended: true}));
+
+// cookie credentials
+app.use(require('cookie-parser')(credentials.cookieSecret));
 
 // set showTests, context property if the querystring contains test=1
 app.use(function(req, res, next){
