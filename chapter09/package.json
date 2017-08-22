@@ -1,0 +1,26 @@
+{
+  "name": "chapter08",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "express": "^4.15.3",
+    "express-handlebars": "^3.0.0",
+    "formidable": "^1.1.1"
+  },
+  "devDependencies": {
+    "chai": "^4.1.0",
+    "grunt": "^1.0.1",
+    "grunt-cafe-mocha": "^0.1.13",
+    "grunt-contrib-jshint": "^1.1.0",
+    "grunt-exec": "^2.0.0",
+    "mocha": "^3.4.2",
+    "zombie": "^5.0.7"
+  }
+}
