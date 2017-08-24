@@ -184,6 +184,11 @@ app.post('/contest/vacation-photo/:year/:month', function(req, res){
   });
 });
 
+var cartValidation = require('./lib/cartValidation.js');
+
+app.use(cartValidation.checkWaivers);
+app.use(cartValidation.checkGuestCounts);
+
 // 404 catch-all handler (middleware)
 app.use(function(req, res){
   res.status(404);
