@@ -28,6 +28,11 @@ app.use(require('body-parser').urlencoded({extended: true}));
 
 // cookie credentials
 app.use(require('cookie-parser')(credentials.cookieSecret));
+app.use(require('express-session')({
+  resave: false,
+  saveUninitialized: false,
+  secret: credentials.cookieSecret
+}));
 
 // set showTests, context property if the querystring contains test=1
 app.use(function(req, res, next){
