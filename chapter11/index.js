@@ -4,6 +4,7 @@ var formidable = require('formidable');
 var credentials = require('./credentials.js');
 
 var app = express();
+var emailService = require('./lib/email.js')(credentials);
 
 // handlebar view engine config
 var handlebars = require('express-handlebars').create({
@@ -189,6 +190,56 @@ var cartValidation = require('./lib/cartValidation.js');
 app.use(cartValidation.checkWaivers);
 app.use(cartValidation.checkGuestCounts);
 
+app.post('/cart/add', function(req, res, next){
+  var cart = req.session.cart || (req.session.cart = {item: []});
+  Product.findOne({ sku: req.body.sku}, function(err, product){
+    if (err) return next(err);
+    if (!product) return next(new Error('Unknown product SKU: ' + req.body.sku));
+    cart.items.push({
+        product: product,
+        guests: req.body.guests || 0,
+    });
+    res.redirect(303, '/cart');
+  });
+});
+app.get('/cart', function(req, res, next){
+  var cart = req.session.cart;
+  console.log("cart: " + cart);
+  if(!cart) next();
+  res.render('cart', {cart: cart});
+});
+app.get('/cart/checkout', function(req, res, next){
+  var cart = req.session.cart;
+  if (!cart) next();
+  res.render('cart-checkout');
+});
+app.get('/cart/thank-you', function(req, res){
+  res.render('cart-thank-you', {cart: req.session.cart});
+});
+app.get('/email/cart/thank-you', function(req, res){
+  res.render('email/cart-thank-you', {cart: req.session.cart, layout: null});
+});
+app.post('/cart/checkout', function(req, res){
+  var cart = req.session.cart;
+  if(!cart) next(new Error('Cart does not exist.'));
+  var name = req.body.name || '', email = req.body.email || '';
+  // input validation
+  if (!email.match(VALID_EMAIL_REGEX)) return res.next(new Error('Invalid email address.'));
+  // assign a random cart ID; normally we would use a database ID here
+  cart.number = Math.random().toString().replace(/^0\.0*/, '');
+  cart.billing = {
+    name: name,
+    email: email,
+  };
+  res.render('email/cart-thank-you', {layout: null}, function(err, html){
+    if (err) console.log('error in email template');
+    emailService.send(cart.billing.email,
+      'Thank you for booking your trip with Meadowlark Travel!',
+      html);
+  });
+  res.render('cart-thank-you', {cart: cart});
+});
+
 // 404 catch-all handler (middleware)
 app.use(function(req, res){
   res.status(404);
@@ -234,3 +285,70 @@ function getWeatherData() {
     ],
   };
 }
+
+// mocking product database
+function Product(){
+}
+Product.find = function(conditions, fields, options, cb){
+	if(typeof conditions==='function') {
+		cb = conditions;
+		conditions = {};
+		fields = null;
+		options = {};
+	} else if(typeof fields==='function') {
+		cb = fields;
+		fields = null;
+		options = {};
+	} else if(typeof options==='function') {
+		cb = options;
+		options = {};
+	}
+	var products = [
+		{
+			name: 'Hood River Tour',
+			slug: 'hood-river',
+			category: 'tour',
+			maximumGuests: 15,
+			sku: 723,
+		},
+		{
+			name: 'Oregon Coast Tour',
+			slug: 'oregon-coast',
+			category: 'tour',
+			maximumGuests: 10,
+			sku: 446,
+		},
+		{
+			name: 'Rock Climbing in Bend',
+			slug: 'rock-climbing/bend',
+			category: 'adventure',
+			requiresWaiver: true,
+			maximumGuests: 4,
+			sku: 944,
+		}
+	];
+	cb(null, products.filter(function(p) {
+		if(conditions.category && p.category!==conditions.category) return false;
+		if(conditions.slug && p.slug!==conditions.slug) return false;
+		if(isFinite(conditions.sku) && p.sku!==Number(conditions.sku)) return false;
+		return true;
+	}));
+};
+Product.findOne = function(conditions, fields, options, cb){
+	if(typeof conditions==='function') {
+		cb = conditions;
+		conditions = {};
+		fields = null;
+		options = {};
+	} else if(typeof fields==='function') {
+		cb = fields;
+		fields = null;
+		options = {};
+	} else if(typeof options==='function') {
+		cb = options;
+		options = {};
+	}
+	Product.find(conditions, fields, options, function(err, products){
+		cb(err, products && products.length ? products[0] : null);
+	});
+};
