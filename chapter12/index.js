@@ -27,6 +27,20 @@ app.use(express.static(__dirname + '/public'));
 // body parser
 app.use(require('body-parser').urlencoded({extended: true}));
 
+// logging
+switch (app.get('env')) {
+  case 'development':
+    // compact, colorful dev logging
+    console.log("development mode");
+    app.use(require('morgan')('dev'));
+    break;
+  case 'production':
+    // module 'express-logger' supports daily log rotation
+    console.log("production mode");
+    app.use(require('express-logger')({path: __dirname + '/log/requests.log'}));
+    break;
+}
+
 // cookie credentials, session configuration
 app.use(require('cookie-parser')(credentials.cookieSecret));
 app.use(require('express-session')({
