@@ -1,3 +1,4 @@
+var http = require('http');
 var express = require('express');
 var fortune = require('./lib/fortune.js');
 var formidable = require('formidable');
@@ -40,6 +41,13 @@ switch (app.get('env')) {
     app.use(require('express-logger')({path: __dirname + '/log/requests.log'}));
     break;
 }
+
+// log cluster
+app.use(function(req, res, next) {
+  var cluster = require('cluster');
+  if (cluster.isWorker)
+    console.log('Worker %d received request', cluster.worker.id);
+});
 
 // cookie credentials, session configuration
 app.use(require('cookie-parser')(credentials.cookieSecret));
@@ -267,10 +275,29 @@ app.use(function(err, req, res, next){
   res.render('500');
 });
 
+/*
 app.listen(app.get('port'), function(){
   console.log('Express started on http://localhost:' + app.get('port') +
    '; press Ctrl + C to terminate.');
 });
+*/
+var server;
+
+function startServer() {
+  server = http.createServer(app).listen(app.get('port'), function(){
+    console.log('Express started in ' + app.get('env') +
+    ' mode on http://localhost:' + app.get('port') +
+    ' ; press Ctrl + C to terminate.');
+  });
+}
+
+if (require.main === module) {
+  // application run directly; start app server
+  startServer();
+} else {
+  // application imported as a module via "require": export function to create server
+  module.exports = startServer;
+}
 
 function getWeatherData() {
   return {
