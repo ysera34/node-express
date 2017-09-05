@@ -498,6 +498,40 @@ app.post('/cart/checkout', function(req, res){
   res.render('cart-thank-you', {cart: cart});
 });
 
+app.get('/notify-me-when-in-season', function(req, res){
+    res.render('notify-me-when-in-season', { sku: req.query.sku });
+});
+
+app.post('/notify-me-when-in-season', function(req, res){
+    VacationInSeasonListener.update(
+        { email: req.body.email },
+        { $push: { skus: req.body.sku } },
+        { upsert: true },
+	    function(err){
+	        if(err) {
+	        	console.error(err.stack);
+	            req.session.flash = {
+	                type: 'danger',
+	                intro: 'Ooops!',
+	                message: 'There was an error processing your request.',
+	            };
+	            return res.redirect(303, '/vacations');
+	        }
+	        req.session.flash = {
+	            type: 'success',
+	            intro: 'Thank you!',
+	            message: 'You will be notified when this vacation is in season.',
+	        };
+	        return res.redirect(303, '/vacations');
+	    }
+	);
+});
+
+app.get('/set-currency/:currency', function(req,res){
+    req.session.currency = req.params.currency;
+    return res.redirect(303, '/vacations');
+});
+
 app.get('/epic-fail', function(req, res){
   process.nextTick(function(){
     throw new Error('Kaboom!');
