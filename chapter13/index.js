@@ -100,6 +100,10 @@ app.use(function(req, res, next) {
   next();
 });
 
+// database configuration
+var MongoSessionStore = require('session-mongoose')(require('connect'));
+var sessionStore = new MongoSessionStore({url:credentials.mongo[app.get('env')].connectionString});
+
 // cookie credentials, session configuration
 app.use(require('cookie-parser')(credentials.cookieSecret));
 app.use(require('express-session')({
@@ -107,10 +111,6 @@ app.use(require('express-session')({
   saveUninitialized: false,
   secret: credentials.cookieSecret
 }));
-
-// database configuration
-// var MongoSessionStore = require('session-mongoose')(require('connect'));
-// var sessionStore = new MongoSessionStore({url:credentials.mongo[app.get('env')].connectionString});
 
 // database configuration
 var mongoose = require('mongoose');
@@ -350,10 +350,10 @@ app.get('/vacation/:vacation', function(req, res, next){
 
 function convertFromUSD(value, currency){
     switch(currency){
-    	case 'USD': return value * 1;
-        case 'GBP': return value * 0.6;
-        case 'BTC': return value * 0.0023707918444761;
-        default: return NaN;
+      case 'USD': return value * 1;
+      case 'GBP': return value * 0.6;
+      case 'BTC': return value * 0.0023707918444761;
+      default: return NaN;
     }
 }
 
