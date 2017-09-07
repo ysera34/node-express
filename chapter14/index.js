@@ -208,6 +208,19 @@ app.use(function(req, res, next){
   next();
 });
 
+// create "admin" subdomain...this should appear
+// before all your other routes
+var admin = express.Router();
+app.use(require('vhost')('admin.*', admin));
+
+// create admin routes; there can be defined anywhere
+admin.get('/', function(req, res) {
+  res.render('admin/home');
+})
+admin.get('/users', function(req, res) {
+  res.render('admin/users');
+})
+
 app.get('/', function(req, res){
   res.render('home');
 });
