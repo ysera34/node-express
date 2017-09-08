@@ -224,12 +224,12 @@ admin.get('/users', function(req, res) {
 // add routes
 require('./routes.js')(app);
 
-app.get('/about', function(req, res){
-  res.render('about', {
-    fortune : fortune.getFortune(),
-    pageTestScript: '/qa/tests-about.js'
-  });
-});
+// app.get('/about', function(req, res){
+//   res.render('about', {
+//     fortune : fortune.getFortune(),
+//     pageTestScript: '/qa/tests-about.js'
+//   });
+// });
 
 app.get('/tours/hood-river', function(req, res){
   res.render('tours/hood-river');

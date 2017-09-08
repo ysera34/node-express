@@ -1,6 +1,7 @@
+var main = require('./handlers/main.js');
+
 module.exports = function(app) {
 
-  app.get('/', function(req, res){
-    res.render('home');
-  });
+  app.get('/', main.home);
+  app.get('/about', main.about);
 };
