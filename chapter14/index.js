@@ -221,9 +221,8 @@ admin.get('/users', function(req, res) {
   res.render('admin/users');
 })
 
-app.get('/', function(req, res){
-  res.render('home');
-});
+// add routes
+require('./routes.js')(app);
 
 app.get('/about', function(req, res){
   res.render('about', {
